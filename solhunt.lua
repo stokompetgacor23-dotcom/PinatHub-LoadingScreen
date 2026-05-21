@@ -1091,7 +1091,7 @@ communitySection:Button({
     Title = "WhatsApp Group",
     Callback = function()
         if set_clipboard then
-            set_clipboard("https://chat.whatsapp.com/I8hG44FLgrRAwQcS3lvEft")
+            set_clipboard("https://chat.whatsapp.com/IxGN8uGjXL74Hwa3sxElLG")
             window:Notify("Copied!", "WhatsApp link copied!", 2)
         end
     end
@@ -1101,7 +1101,7 @@ communitySection:Button({
     Title = "Discord Server",
     Callback = function()
         if set_clipboard then
-            set_clipboard("https://discord.gg/forgehubrbx")
+            set_clipboard("https://discord.gg/emK8k3smfk")
             window:Notify("Copied!", "Discord link copied!", 2)
         end
     end
