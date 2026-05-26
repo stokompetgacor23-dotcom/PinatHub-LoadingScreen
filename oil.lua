@@ -1,7 +1,7 @@
 repeat task.wait() until game:IsLoaded()
 
 -- =======================================================
--- PINATHUB | OIL EMPIRE (INTEGRATED)
+-- PINATHUB | OIL EMPIRE (WINDUI v2)
 -- =======================================================
 
 -- ============================================
@@ -259,8 +259,8 @@ logoGui.Parent = LocalPlayer:WaitForChild("PlayerGui", 5)
 
 local logoButton = Instance.new("ImageButton")
 logoButton.Name = "LogoButton"
-logoButton.Size = UDim2.new(0, 60, 0, 60)
-logoButton.Position = UDim2.new(0.5, -30, 0.5, -30)
+logoButton.Size = UDim2.new(0, 50, 0, 50)
+logoButton.Position = UDim2.new(0.5, -25, 0.5, -25)
 logoButton.BackgroundTransparency = 1
 logoButton.Image = "rbxassetid://118264723961739"
 logoButton.ImageColor3 = Color3.fromRGB(180, 0, 255)
@@ -271,8 +271,8 @@ local uiCornerLogo = Instance.new("UICorner")
 uiCornerLogo.CornerRadius = UDim.new(1, 0)
 uiCornerLogo.Parent = logoButton
 
-local hoverTween = TweenService:Create(logoButton, TweenInfo.new(0.2), {Size = UDim2.new(0, 70, 0, 70)})
-local unhoverTween = TweenService:Create(logoButton, TweenInfo.new(0.2), {Size = UDim2.new(0, 60, 0, 60)})
+local hoverTween = TweenService:Create(logoButton, TweenInfo.new(0.2), {Size = UDim2.new(0, 60, 0, 60)})
+local unhoverTween = TweenService:Create(logoButton, TweenInfo.new(0.2), {Size = UDim2.new(0, 50, 0, 50)})
 
 logoButton.MouseEnter:Connect(function() hoverTween:Play() end)
 logoButton.MouseLeave:Connect(function() unhoverTween:Play() end)
@@ -309,7 +309,7 @@ UserInputService.InputChanged:Connect(function(input)
 end)
 
 -- ============================================
--- LOAD WINDUI
+-- LOAD WINDUI v2
 -- ============================================
 local WindUI = loadstring(game:HttpGet('https://github.com/Footagesus/WindUI/releases/latest/download/main.lua'))()
 
@@ -317,11 +317,12 @@ local window = WindUI:CreateWindow({
     Title = "PinatHub",
     Author = "@viunze on tiktok",
     Folder = "pinathub_oilempire",
-    Size = UDim2.fromOffset(450, 550),
-    Transparent = false,
+    Size = UDim2.fromOffset(500, 350),
+    Transparent = true,
     Theme = "Dark",
     IsOpenButtonEnabled = false,
-    User = {Enabled = true, Anonymous = true},
+    UserEnabled = true,
+    HasOutline = true,
     SideBarWidth = 150,
 })
 
@@ -350,7 +351,6 @@ local tabs = {
 -- ============================================
 -- STATUS UPDATE THREAD
 -- ============================================
-local statusText = ""
 task.spawn(function()
     while true do
         task.wait(1)
@@ -372,51 +372,54 @@ end)
 -- ============================================
 local farmSection = tabs.farm:Section({Title = "Refinery Auto Pickup"})
 
--- Status Card
-local statusFrame = farmSection:AddFrame({Title = "Status"})
-statusFrame:Label("Status: INACTIVE", Enum.Font.GothamSemibold, 14, Color3.fromRGB(120, 220, 170))
-local refineryCountLabel = statusFrame:Label("0 refineries found", Enum.Font.Gotham, 12, Color3.fromRGB(120, 120, 120))
+farmSection:Paragraph({
+    Title = "Status",
+    Desc = "Auto Pickup is currently INACTIVE"
+})
 
--- Auto Pickup Toggle
-local pickupFrame = farmSection:AddFrame({Title = "Auto Pickup"})
-pickupFrame:Label("Auto Pickup", Enum.Font.GothamSemibold, 13)
-pickupFrame:Label("Collects full refineries", Enum.Font.Gotham, 11, Color3.fromRGB(70, 70, 70))
-local pickupToggle = pickupFrame:Toggle({
-    Title = "",
-    Default = false,
+local refineryCountLabel = farmSection:Paragraph({
+    Title = "Refinery Count",
+    Desc = "0 refineries found"
+})
+
+farmSection:Toggle({
+    Title = "Auto Pickup",
+    Desc = "Collects full refineries",
+    Value = false,
     Callback = function(state)
         oilEnabled = state
         if oilEnabled then
             if oilFarmThread then task.cancel(oilFarmThread) end
             oilFarmThread = task.spawn(oilFarmLoop)
-            statusFrame:Label("Status: ACTIVE", Enum.Font.GothamSemibold, 14, Color3.fromRGB(120, 220, 170))
+            farmSection:Paragraph({
+                Title = "Status",
+                Desc = "Auto Pickup is currently ACTIVE"
+            })
         else
             if oilFarmThread then task.cancel(oilFarmThread); oilFarmThread = nil end
-            statusFrame:Label("Status: INACTIVE", Enum.Font.GothamSemibold, 14, Color3.fromRGB(220, 80, 80))
+            farmSection:Paragraph({
+                Title = "Status",
+                Desc = "Auto Pickup is currently INACTIVE"
+            })
         end
         window:Notify("Auto Pickup", state and "Enabled" or "Disabled", 2)
     end
 })
 
--- Tween Speed Slider
-local speedFrame = farmSection:AddFrame({Title = "Tween Speed"})
-speedFrame:Label("Tween Speed", Enum.Font.GothamSemibold, 13)
-speedFrame:Label("Duration per tween", Enum.Font.Gotham, 11, Color3.fromRGB(70, 70, 70))
-local speedSlider = speedFrame:Slider({
-    Title = "Seconds",
-    Value = {Min = 0.1, Max = 1.0, Default = 0.1, Decimals = 1},
+farmSection:Slider({
+    Title = "Tween Speed",
+    Desc = "Duration per tween (seconds)",
+    Value = { Min = 0.1, Max = 1.0, Default = 0.1 },
+    Rounding = 1,
     Callback = function(v)
         oilTweenSpeed = v
     end
 })
 
--- Anti AFK
-local afkFrame = farmSection:AddFrame({Title = "Anti AFK"})
-afkFrame:Label("Anti-AFK", Enum.Font.GothamSemibold, 13)
-afkFrame:Label("Prevents idle kick", Enum.Font.Gotham, 11, Color3.fromRGB(70, 70, 70))
-local afkToggle = afkFrame:Toggle({
-    Title = "",
-    Default = false,
+farmSection:Toggle({
+    Title = "Anti-AFK",
+    Desc = "Prevents idle kick",
+    Value = false,
     Callback = function(state)
         oilSetAntiAfk(state)
         window:Notify("Anti-AFK", state and "Enabled" or "Disabled", 2)
@@ -428,19 +431,25 @@ local afkToggle = afkFrame:Toggle({
 -- ============================================
 local sellSection = tabs.sell:Section({Title = "Gas Price Monitor"})
 
--- Price Display Frame
-local priceFrame = sellSection:AddFrame({Title = "Current Prices"})
-local gasPriceLabel = priceFrame:Label("Gas Price: $--", Enum.Font.GothamBold, 16, Color3.fromRGB(110, 210, 160))
-local sellPriceLabel = priceFrame:Label("Sell Price: --", Enum.Font.GothamBold, 16, Color3.fromRGB(110, 210, 160))
-local timerLabel = priceFrame:Label("Next Price in: --", Enum.Font.Gotham, 12, Color3.fromRGB(130, 130, 130))
+sellSection:Paragraph({
+    Title = "Current Gas Price",
+    Desc = "Loading..."
+})
 
--- Auto Sell Toggle
-local autoSellFrame = sellSection:AddFrame({Title = "Auto Sell"})
-autoSellFrame:Label("Auto Sell", Enum.Font.GothamSemibold, 13)
-autoSellFrame:Label("Sells when price ≥ target", Enum.Font.Gotham, 11, Color3.fromRGB(70, 70, 70))
-local sellToggle = autoSellFrame:Toggle({
-    Title = "",
-    Default = false,
+sellSection:Paragraph({
+    Title = "Sell Price",
+    Desc = "Loading..."
+})
+
+sellSection:Paragraph({
+    Title = "Next Price Update",
+    Desc = "Loading..."
+})
+
+sellSection:Toggle({
+    Title = "Auto Sell",
+    Desc = "Sells when price ≥ target",
+    Value = false,
     Callback = function(state)
         oilSellEnabled = state
         if oilSellEnabled then
@@ -453,48 +462,36 @@ local sellToggle = autoSellFrame:Toggle({
     end
 })
 
--- Min Gas Price Setting
-local priceSettingFrame = sellSection:AddFrame({Title = "Min Gas Price"})
-priceSettingFrame:Label("Minimum Gas Price", Enum.Font.GothamSemibold, 13)
-local priceSlider = priceSettingFrame:Slider({
-    Title = "Price ($1-$30)",
-    Value = {Min = 1, Max = 30, Default = 10, Decimals = 0},
+sellSection:Slider({
+    Title = "Minimum Gas Price",
+    Desc = "Price to sell at ($1-$30)",
+    Value = { Min = 1, Max = 30, Default = 10 },
+    Rounding = 0,
     Callback = function(v)
         oilSellPrice = v
     end
 })
 
--- Min Gasoline Setting
-local gasSettingFrame = sellSection:AddFrame({Title = "Min Gasoline"})
-gasSettingFrame:Label("Minimum Gasoline", Enum.Font.GothamSemibold, 13)
-gasSettingFrame:Label("Min gas before selling", Enum.Font.Gotham, 11, Color3.fromRGB(70, 70, 70))
-local gasSlider = gasSettingFrame:Slider({
-    Title = "Amount (1K - 10M)",
-    Value = {Min = 1000, Max = 10000000, Default = 10000, Decimals = 0},
+sellSection:Slider({
+    Title = "Minimum Gasoline",
+    Desc = "Minimum gas before selling (1K - 10M)",
+    Value = { Min = 1000, Max = 10000000, Default = 10000 },
+    Rounding = 0,
     Callback = function(v)
         oilMinGasoline = v
-        gasSettingFrame:Label(string.format("Current: %s", formatGas(v)), Enum.Font.Gotham, 11, Color3.fromRGB(110, 210, 160))
     end
 })
-
--- Format gas helper
-local function formatGas(v)
-    if v >= 1000000 then return string.format("%.1fM", v/1000000)
-    elseif v >= 1000 then return string.format("%dK", math.floor(v/1000))
-    else return tostring(v) end
-end
-gasSettingFrame:Label(string.format("Current: %s", formatGas(oilMinGasoline)), Enum.Font.Gotham, 11, Color3.fromRGB(110, 210, 160))
 
 -- ============================================
 -- UI SECTIONS - SETTINGS TAB
 -- ============================================
 local settingsSection = tabs.settings:Section({Title = "General Settings"})
 
--- Walk Speed Setting
 local walkSpeedValue = 16
 settingsSection:Slider({
     Title = "Walk Speed (16-250)",
-    Value = {Min = 16, Max = 250, Default = 16, Decimals = 0},
+    Value = { Min = 16, Max = 250, Default = 16 },
+    Rounding = 0,
     Callback = function(v)
         walkSpeedValue = v
         local char = LocalPlayer.Character
@@ -505,11 +502,11 @@ settingsSection:Slider({
     end
 })
 
--- Jump Power Setting
 local jumpPowerValue = 50
 settingsSection:Slider({
     Title = "Jump Power (0-500)",
-    Value = {Min = 0, Max = 500, Default = 50, Decimals = 0},
+    Value = { Min = 0, Max = 500, Default = 50 },
+    Rounding = 0,
     Callback = function(v)
         jumpPowerValue = v
         local char = LocalPlayer.Character
@@ -524,9 +521,6 @@ settingsSection:Slider({
 })
 
 settingsSection:Divider()
-
--- Server Settings
-settingsSection:Label("Server Options", Enum.Font.GothamSemibold, 14)
 
 settingsSection:Button({
     Title = "Server Hop",
@@ -629,8 +623,11 @@ task.spawn(function()
             end)
             if okP and price then
                 local priceAbove = price >= oilSellPrice
-                gasPriceLabel:SetText(string.format("Gas Price: $%d", price))
-                gasPriceLabel:SetColor(priceAbove and Color3.fromRGB(110, 210, 160) or Color3.fromRGB(220, 80, 80))
+                local color = priceAbove and "#6ED8A8" or "#DC5050"
+                sellSection:Paragraph({
+                    Title = "Current Gas Price",
+                    Desc = "$" .. price
+                })
             end
             
             local okS, spRaw = pcall(function()
@@ -638,17 +635,25 @@ task.spawn(function()
             end)
             if okS and spRaw then
                 local extracted = spRaw:match("%$[%d,]+") or "$0"
-                sellPriceLabel:SetText(string.format("Sell Price: %s", extracted))
-                sellPriceLabel:SetColor(Color3.fromRGB(110, 210, 160))
+                sellSection:Paragraph({
+                    Title = "Sell Price",
+                    Desc = extracted
+                })
             end
             
             local okT, timerTxt = pcall(function()
                 return LocalPlayer.PlayerGui.Main.SellGas.NextStock.Text
             end)
             if okT and timerTxt and tostring(timerTxt) ~= "" then
-                timerLabel:SetText(string.format("Next Price in: %s", tostring(timerTxt)))
+                sellSection:Paragraph({
+                    Title = "Next Price Update",
+                    Desc = tostring(timerTxt)
+                })
             else
-                timerLabel:SetText("Next Price in: --")
+                sellSection:Paragraph({
+                    Title = "Next Price Update",
+                    Desc = "--"
+                })
             end
         end)
     end
@@ -663,13 +668,11 @@ task.spawn(function()
         pcall(function()
             local buildings = oilGetBuildings()
             if not buildings then
-                refineryCountLabel:SetText("plot not found")
-                refineryCountLabel:SetColor(Color3.fromRGB(220, 80, 80))
+                refineryCountLabel:SetDesc("plot not found")
             else
                 local list = oilGetRefineries(buildings)
                 local n = #list
-                refineryCountLabel:SetText(string.format("%d refiner%s found", n, n == 1 and "y" or "ies"))
-                refineryCountLabel:SetColor(Color3.fromRGB(120, 120, 120))
+                refineryCountLabel:SetDesc(string.format("%d refiner%s found", n, n == 1 and "y" or "ies"))
             end
         end)
     end
