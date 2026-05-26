@@ -1,7 +1,7 @@
 repeat task.wait() until game:IsLoaded()
 
 -- =======================================================
--- PINATHUB | SOLO HUNTER (INTEGRATED)
+-- PINATHUB | SOLO HUNTER (WINDUI v2)
 -- =======================================================
 
 -- ============================================
@@ -171,8 +171,8 @@ logoGui.Parent = player:WaitForChild("PlayerGui", 5)
 
 local logoButton = Instance.new("ImageButton")
 logoButton.Name = "LogoButton"
-logoButton.Size = UDim2.new(0, 60, 0, 60)
-logoButton.Position = UDim2.new(0.5, -30, 0.5, -30)
+logoButton.Size = UDim2.new(0, 50, 0, 50)
+logoButton.Position = UDim2.new(0.5, -25, 0.5, -25)
 logoButton.BackgroundTransparency = 1
 logoButton.Image = "rbxassetid://118264723961739"
 logoButton.ImageColor3 = Color3.fromRGB(180, 0, 255)
@@ -183,8 +183,8 @@ local uiCornerLogo = Instance.new("UICorner")
 uiCornerLogo.CornerRadius = UDim.new(1, 0)
 uiCornerLogo.Parent = logoButton
 
-local hoverTween = TweenService:Create(logoButton, TweenInfo.new(0.2), {Size = UDim2.new(0, 70, 0, 70)})
-local unhoverTween = TweenService:Create(logoButton, TweenInfo.new(0.2), {Size = UDim2.new(0, 60, 0, 60)})
+local hoverTween = TweenService:Create(logoButton, TweenInfo.new(0.2), {Size = UDim2.new(0, 60, 0, 60)})
+local unhoverTween = TweenService:Create(logoButton, TweenInfo.new(0.2), {Size = UDim2.new(0, 50, 0, 50)})
 
 logoButton.MouseEnter:Connect(function() hoverTween:Play() end)
 logoButton.MouseLeave:Connect(function() unhoverTween:Play() end)
@@ -221,7 +221,7 @@ UIS.InputChanged:Connect(function(input)
 end)
 
 -- ============================================
--- LOAD WINDUI
+-- LOAD WINDUI v2
 -- ============================================
 local WindUI = loadstring(game:HttpGet('https://github.com/Footagesus/WindUI/releases/latest/download/main.lua'))()
 
@@ -229,11 +229,12 @@ local window = WindUI:CreateWindow({
     Title = "PinatHub",
     Author = "@viunze on tiktok",
     Folder = "pinathub_solohunter",
-    Size = UDim2.fromOffset(600, 550),
-    Transparent = false,
+    Size = UDim2.fromOffset(500, 350),
+    Transparent = true,
     Theme = "Dark",
     IsOpenButtonEnabled = false,
-    User = {Enabled = true, Anonymous = true},
+    UserEnabled = true,
+    HasOutline = true,
     SideBarWidth = 150,
 })
 
@@ -688,7 +689,7 @@ local dungeons = {"Subway", "Caves", "Desert", "Jungle", "WolfCave", "SpiderCave
 mainSection:Dropdown({
     Title = "Choose Dungeon",
     Values = dungeons,
-    Default = 1,
+    Value = "Subway",
     Callback = function(value)
         choosendungeon = value
     end
@@ -699,7 +700,7 @@ local ranks = {"F", "F+", "E", "E+", "D", "D+", "C", "C+", "B", "B+", "A", "A+",
 mainSection:Dropdown({
     Title = "Choose Dungeon Rank",
     Values = ranks,
-    Default = 1,
+    Value = "F",
     Callback = function(value)
         choosendungeonrank = value
     end
@@ -711,7 +712,6 @@ local dungeonSection = tabs.main:Section({Title = "Dungeon Farm"})
 
 dungeonSection:Toggle({
     Title = "Auto Farm Dungeon",
-    Type = "Checkbox",
     Value = false,
     Callback = function(state)
         autofarmdungeon = state
@@ -721,7 +721,6 @@ dungeonSection:Toggle({
 
 dungeonSection:Toggle({
     Title = "Auto Join Dungeon",
-    Type = "Checkbox",
     Value = false,
     Callback = function(state)
         autojoindungeon = state
@@ -731,7 +730,6 @@ dungeonSection:Toggle({
 
 dungeonSection:Toggle({
     Title = "Auto Start Dungeon",
-    Type = "Checkbox",
     Value = false,
     Callback = function(state)
         autostartdungeon = state
@@ -741,7 +739,6 @@ dungeonSection:Toggle({
 
 dungeonSection:Toggle({
     Title = "Auto Leave Dungeon",
-    Type = "Checkbox",
     Value = false,
     Callback = function(state)
         autoleavedungeon = state
@@ -751,7 +748,6 @@ dungeonSection:Toggle({
 
 dungeonSection:Toggle({
     Title = "Auto Open Chest",
-    Type = "Checkbox",
     Value = false,
     Callback = function(state)
         AutoOpenChest = state
@@ -763,7 +759,6 @@ local monsterSection = tabs.main:Section({Title = "Monster Farm"})
 
 monsterSection:Toggle({
     Title = "Auto Farm Monster",
-    Type = "Checkbox",
     Value = false,
     Callback = function(state)
         AutoFarmMonster = state
@@ -773,7 +768,6 @@ monsterSection:Toggle({
 
 monsterSection:Toggle({
     Title = "Fast Attack Monster",
-    Type = "Checkbox",
     Value = false,
     Callback = function(state)
         AutoAttackMonster = state
@@ -783,7 +777,6 @@ monsterSection:Toggle({
 
 monsterSection:Toggle({
     Title = "Normal Attack Monster",
-    Type = "Checkbox",
     Value = false,
     Callback = function(state)
         normalattack = state
@@ -793,7 +786,6 @@ monsterSection:Toggle({
 
 monsterSection:Toggle({
     Title = "Enable Kill Aura",
-    Type = "Checkbox",
     Value = false,
     Callback = function(state)
         KillAura = state
@@ -808,7 +800,8 @@ local statsSection = tabs.stats:Section({Title = "Stats Manager"})
 
 statsSection:Slider({
     Title = "Point Amount",
-    Value = {Min = 0, Max = 10, Default = 1, Decimals = 0},
+    Value = { Min = 0, Max = 10, Default = 1 },
+    Rounding = 0,
     Callback = function(v)
         PointAmount = v
     end
@@ -818,7 +811,7 @@ local statsList = {"Magic", "Strength", "Defense", "Agility", "Energy"}
 statsSection:Dropdown({
     Title = "Choose Stats",
     Values = statsList,
-    Default = 2,
+    Value = "Strength",
     Callback = function(value)
         choosenstats = value
     end
@@ -826,7 +819,6 @@ statsSection:Dropdown({
 
 statsSection:Toggle({
     Title = "Enable Auto Stats",
-    Type = "Checkbox",
     Value = false,
     Callback = function(state)
         autostats = state
@@ -852,7 +844,7 @@ if #SwordList > 0 then
     swordSection:Dropdown({
         Title = "Choose Sword To Equip",
         Values = SwordList,
-        Default = 1,
+        Value = SwordList[1],
         Callback = function(value)
             choosesword = value
         end
@@ -888,7 +880,6 @@ sellSection:Button({
 
 sellSection:Toggle({
     Title = "Auto Sell Loot Materials",
-    Type = "Checkbox",
     Value = false,
     Callback = function(state)
         AutoSellLoot = state
@@ -918,7 +909,6 @@ local autoEquipSection = tabs.items:Section({Title = "Auto Equip"})
 
 autoEquipSection:Toggle({
     Title = "Auto Equip Best Sword",
-    Type = "Checkbox",
     Value = false,
     Callback = function(state)
         AutoEquipSword = state
@@ -928,7 +918,6 @@ autoEquipSection:Toggle({
 
 autoEquipSection:Toggle({
     Title = "Auto Equip Best Armor",
-    Type = "Checkbox",
     Value = false,
     Callback = function(state)
         AutoEquipArmor = state
@@ -940,7 +929,6 @@ local questSection = tabs.items:Section({Title = "Quest"})
 
 questSection:Toggle({
     Title = "Auto Take Subway Quest",
-    Type = "Checkbox",
     Value = false,
     Callback = function(state)
         autotakesubwayquest = state
@@ -967,7 +955,7 @@ if #TableItemsShop > 0 then
     shopSection:Dropdown({
         Title = "Choose Items To Buy",
         Values = TableItemsShop,
-        Default = 1,
+        Value = TableItemsShop[1],
         Callback = function(value)
             chooseItems = value
         end
@@ -991,7 +979,6 @@ local autoBuySection = tabs.merchant:Section({Title = "Auto Buy"})
 
 autoBuySection:Toggle({
     Title = "Auto Buy Selected Item",
-    Type = "Checkbox",
     Value = false,
     Callback = function(state)
         AutoBuy = state
@@ -1006,7 +993,6 @@ local protectionSection = tabs.misc:Section({Title = "Protection"})
 
 protectionSection:Toggle({
     Title = "Enable Protection",
-    Type = "Checkbox",
     Value = false,
     Callback = function(state)
         enableprotection = state
@@ -1018,7 +1004,8 @@ local cameraSection = tabs.misc:Section({Title = "Camera"})
 
 cameraSection:Slider({
     Title = "Maximum Zoom Distance",
-    Value = {Min = 10, Max = 1000, Default = 100, Decimals = 1},
+    Value = { Min = 10, Max = 1000, Default = 100 },
+    Rounding = 1,
     Callback = function(v)
         Camera_Zoom = v
     end
@@ -1028,7 +1015,8 @@ local flySection = tabs.misc:Section({Title = "Fly"})
 
 flySection:Slider({
     Title = "Fly Speed",
-    Value = {Min = 10, Max = 500, Default = 50, Decimals = 1},
+    Value = { Min = 10, Max = 500, Default = 50 },
+    Rounding = 1,
     Callback = function(v)
         FlySpeed = v
     end
@@ -1036,7 +1024,6 @@ flySection:Slider({
 
 flySection:Toggle({
     Title = "Enable Fly",
-    Type = "Checkbox",
     Value = false,
     Callback = function(state)
         enablefly = state
@@ -1048,7 +1035,8 @@ local playerSectionMisc = tabs.misc:Section({Title = "Player"})
 
 playerSectionMisc:Slider({
     Title = "Speed Changer",
-    Value = {Min = 1, Max = 300, Default = 13, Decimals = 1},
+    Value = { Min = 1, Max = 300, Default = 13 },
+    Rounding = 1,
     Callback = function(v)
         speedchanger = v
     end
@@ -1056,7 +1044,6 @@ playerSectionMisc:Slider({
 
 playerSectionMisc:Toggle({
     Title = "Enable Speed Changer",
-    Type = "Checkbox",
     Value = false,
     Callback = function(state)
         enablespeed = state
@@ -1066,7 +1053,8 @@ playerSectionMisc:Toggle({
 
 playerSectionMisc:Slider({
     Title = "Jump Power Changer",
-    Value = {Min = 1, Max = 300, Default = 13, Decimals = 1},
+    Value = { Min = 1, Max = 300, Default = 13 },
+    Rounding = 1,
     Callback = function(v)
         jumppowerchanger = v
     end
@@ -1074,7 +1062,6 @@ playerSectionMisc:Slider({
 
 playerSectionMisc:Toggle({
     Title = "Enable Jump Power Changer",
-    Type = "Checkbox",
     Value = false,
     Callback = function(state)
         enablejumppower = state
@@ -1125,7 +1112,8 @@ local moveSection = tabs.settings:Section({Title = "Character Settings"})
 local walkSpeedValue = 16
 moveSection:Slider({
     Title = "Walk Speed (16-250)",
-    Value = {Min = 16, Max = 250, Default = 16, Decimals = 0},
+    Value = { Min = 16, Max = 250, Default = 16 },
+    Rounding = 0,
     Callback = function(v)
         walkSpeedValue = v
         local char = player.Character
@@ -1139,7 +1127,8 @@ moveSection:Slider({
 local jumpPowerValue = 50
 moveSection:Slider({
     Title = "Jump Power (0-500)",
-    Value = {Min = 0, Max = 500, Default = 50, Decimals = 0},
+    Value = { Min = 0, Max = 500, Default = 50 },
+    Rounding = 0,
     Callback = function(v)
         jumpPowerValue = v
         local char = player.Character
@@ -1170,7 +1159,6 @@ local serverSection = tabs.settings:Section({Title = "Server"})
 local antiAFKActive = false
 serverSection:Toggle({
     Title = "Anti-AFK",
-    Type = "Checkbox",
     Value = false,
     Callback = function(state)
         antiAFKActive = state
