@@ -1,7 +1,7 @@
 repeat task.wait() until game:IsLoaded()
 
 -- =======================================================
--- PINATHUB | SLIME RNG
+-- PINATHUB | SLIME RNG (WINDUI v2)
 -- =======================================================
 
 -- ============================================
@@ -37,8 +37,8 @@ logoGui.Parent = LocalPlayer:WaitForChild("PlayerGui", 5)
 
 local logoButton = Instance.new("ImageButton")
 logoButton.Name = "LogoButton"
-logoButton.Size = UDim2.new(0, 60, 0, 60)
-logoButton.Position = UDim2.new(0.5, -30, 0.5, -30)
+logoButton.Size = UDim2.new(0, 50, 0, 50)
+logoButton.Position = UDim2.new(0.5, -25, 0.5, -25)
 logoButton.BackgroundTransparency = 1
 logoButton.Image = "rbxassetid://118264723961739"
 logoButton.ImageColor3 = Color3.fromRGB(180, 0, 255)
@@ -49,8 +49,8 @@ local uiCornerLogo = Instance.new("UICorner")
 uiCornerLogo.CornerRadius = UDim.new(1, 0)
 uiCornerLogo.Parent = logoButton
 
-local hoverTween = TweenService:Create(logoButton, TweenInfo.new(0.2), {Size = UDim2.new(0, 70, 0, 70)})
-local unhoverTween = TweenService:Create(logoButton, TweenInfo.new(0.2), {Size = UDim2.new(0, 60, 0, 60)})
+local hoverTween = TweenService:Create(logoButton, TweenInfo.new(0.2), {Size = UDim2.new(0, 60, 0, 60)})
+local unhoverTween = TweenService:Create(logoButton, TweenInfo.new(0.2), {Size = UDim2.new(0, 50, 0, 50)})
 
 logoButton.MouseEnter:Connect(function() hoverTween:Play() end)
 logoButton.MouseLeave:Connect(function() unhoverTween:Play() end)
@@ -87,7 +87,7 @@ UserInputService.InputChanged:Connect(function(input)
 end)
 
 -- ============================================
--- LOAD WINDUI
+-- LOAD WINDUI v2
 -- ============================================
 local WindUI = loadstring(game:HttpGet('https://github.com/Footagesus/WindUI/releases/latest/download/main.lua'))()
 
@@ -95,12 +95,13 @@ local window = WindUI:CreateWindow({
     Title = "PinatHub",
     Author = "@viunze on tiktok",
     Folder = "pinathub_slimerng",
-    Size = UDim2.fromOffset(650, 600),
-    Transparent = false,
+    Size = UDim2.fromOffset(500, 350),
+    Transparent = true,
     Theme = "Dark",
     IsOpenButtonEnabled = false,
-    User = {Enabled = true, Anonymous = true},
-    SideBarWidth = 160,
+    UserEnabled = true,
+    HasOutline = true,
+    SideBarWidth = 150,
 })
 
 local guiVisible = true
@@ -668,12 +669,12 @@ end
 -- ============================================
 
 -- HOME TAB
-
 local playerSection = tabs.home:Section({Title = "Local Player"})
 
 playerSection:Slider({
     Title = "Walk Speed",
-    Value = {Min = 0, Max = 100, Default = 16, Decimals = 0},
+    Value = {Min = 0, Max = 100, Default = 16},
+    Rounding = 0,
     Callback = function(v)
         walkSpeedValue = v
         updateCharacter()
@@ -682,7 +683,8 @@ playerSection:Slider({
 
 playerSection:Slider({
     Title = "Jump Power",
-    Value = {Min = 0, Max = 150, Default = 50, Decimals = 0},
+    Value = {Min = 0, Max = 150, Default = 50},
+    Rounding = 0,
     Callback = function(v)
         jumpPowerValue = v
         updateCharacter()
@@ -704,7 +706,6 @@ local mainSection = tabs.main:Section({Title = "Rolling"})
 
 mainSection:Toggle({
     Title = "Auto Roll",
-    Type = "Checkbox",
     Value = false,
     Callback = function(v)
         autoRollEnabled = v
@@ -714,7 +715,6 @@ mainSection:Toggle({
 
 mainSection:Toggle({
     Title = "Auto Roll Games (smooth)",
-    Type = "Checkbox",
     Value = false,
     Callback = function(v)
         autoRollGamesEnabled = v
@@ -739,7 +739,6 @@ local farmingSection = tabs.main:Section({Title = "Farming"})
 
 farmingSection:Toggle({
     Title = "Auto Index",
-    Type = "Checkbox",
     Value = false,
     Callback = function(v)
         autoIndexEnabled = v
@@ -756,7 +755,6 @@ farmingSection:Toggle({
 
 farmingSection:Toggle({
     Title = "Auto Farm",
-    Type = "Checkbox",
     Value = false,
     Callback = function(v)
         autoFarmEnabled = v
@@ -766,7 +764,6 @@ farmingSection:Toggle({
 
 farmingSection:Toggle({
     Title = "Auto Best Zone",
-    Type = "Checkbox",
     Value = false,
     Callback = function(v)
         autoBestZoneEnabled = v
@@ -786,7 +783,6 @@ farmingSection:Input({
 
 farmingSection:Toggle({
     Title = "Auto Potions",
-    Type = "Checkbox",
     Value = false,
     Callback = function(v)
         autoPotionsEnabled = v
@@ -800,7 +796,6 @@ local combatSection = tabs.main:Section({Title = "Combat"})
 
 combatSection:Toggle({
     Title = "Auto Shoot",
-    Type = "Checkbox",
     Value = false,
     Callback = function(v)
         autoShootEnabled = v
@@ -810,7 +805,6 @@ combatSection:Toggle({
 
 combatSection:Toggle({
     Title = "Slime Magnet",
-    Type = "Checkbox",
     Value = false,
     Callback = function(v)
         slimeMagnetEnabled = v
@@ -896,7 +890,6 @@ local autoUpgradeSection = tabs.automatic:Section({Title = "Upgrades Automatical
 
 autoUpgradeSection:Toggle({
     Title = "Auto Upgrade",
-    Type = "Checkbox",
     Value = false,
     Callback = function(v)
         autoUpgradeEnabled = v
@@ -916,7 +909,6 @@ autoUpgradeSection:Input({
 
 autoUpgradeSection:Toggle({
     Title = "Auto Buy Zone",
-    Type = "Checkbox",
     Value = false,
     Callback = function(v)
         autoBuyZoneEnabled = v
@@ -926,7 +918,6 @@ autoUpgradeSection:Toggle({
 
 autoUpgradeSection:Toggle({
     Title = "Auto Rebirth",
-    Type = "Checkbox",
     Value = false,
     Callback = function(v)
         autoRebirthEnabled = v
@@ -936,7 +927,6 @@ autoUpgradeSection:Toggle({
 
 autoUpgradeSection:Toggle({
     Title = "Auto Equip Best",
-    Type = "Checkbox",
     Value = false,
     Callback = function(v)
         autoEquipBestEnabled = v
@@ -950,7 +940,6 @@ local collectSection = tabs.automatic:Section({Title = "Collect Automatically"})
 
 collectSection:Toggle({
     Title = "Auto Loot",
-    Type = "Checkbox",
     Value = false,
     Callback = function(v)
         autoLootEnabled = v
@@ -960,7 +949,6 @@ collectSection:Toggle({
 
 collectSection:Toggle({
     Title = "Auto Claim Offline Earnings",
-    Type = "Checkbox",
     Value = false,
     Callback = function(v)
         autoClaimOfflineEnabled = v
@@ -981,7 +969,6 @@ webhookSection:Input({
 
 webhookSection:Toggle({
     Title = "Enable Webhook",
-    Type = "Checkbox",
     Value = false,
     Callback = function(v)
         webhookEnabled = v
@@ -1004,7 +991,6 @@ local miscSection = tabs.misc:Section({Title = "Misc"})
 
 miscSection:Toggle({
     Title = "Infinite Jump",
-    Type = "Checkbox",
     Value = false,
     Callback = function(v)
         infJumpEnabled = v
@@ -1021,7 +1007,6 @@ miscSection:Button({
 
 miscSection:Toggle({
     Title = "Noclip",
-    Type = "Checkbox",
     Value = false,
     Callback = function(v)
         noclipEnabled = v
@@ -1031,7 +1016,6 @@ miscSection:Toggle({
 
 miscSection:Toggle({
     Title = "Auto Reconnect",
-    Type = "Checkbox",
     Value = false,
     Callback = function(v)
         autoReconnectEnabled = v
@@ -1041,7 +1025,6 @@ miscSection:Toggle({
 
 miscSection:Toggle({
     Title = "Anti AFK",
-    Type = "Checkbox",
     Value = false,
     Callback = function(v)
         antiAFKEnabled = v
