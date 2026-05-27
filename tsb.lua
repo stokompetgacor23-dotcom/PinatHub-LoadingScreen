@@ -37,70 +37,62 @@ local WindUI = (function()
 end)()
 if not WindUI then return end
 
--- =======================================================
--- LOGO GUI UNTUK BUKA/TUTUP (DAPAT DIGESER)
--- =======================================================
+-- ============================================
+-- LOGO LAUNCHER PINATHUB
+-- ============================================
 local logoGui = Instance.new("ScreenGui")
-logoGui.Name = "ZeOrbitLogoDraggable"
+logoGui.Name = "PinatHubLogo"
 logoGui.ResetOnSpawn = false
-logoGui.Parent = player:WaitForChild("PlayerGui", 5)
+logoGui.Parent = LocalPlayer:WaitForChild("PlayerGui", 5)
 
 local logoButton = Instance.new("ImageButton")
 logoButton.Name = "LogoButton"
 logoButton.Size = UDim2.new(0, 50, 0, 50)
 logoButton.Position = UDim2.new(0.5, -25, 0.5, -25)
 logoButton.BackgroundTransparency = 1
-logoButton.Image = "rbxassetid://108939127221214"
+logoButton.Image = "rbxassetid://118264723961739"
 logoButton.ImageColor3 = Color3.fromRGB(180, 0, 255)
 logoButton.ScaleType = Enum.ScaleType.Fit
 logoButton.Parent = logoGui
 
-local uiCorner = Instance.new("UICorner")
-uiCorner.CornerRadius = UDim.new(1, 0)
-uiCorner.Parent = logoButton
+local uiCornerLogo = Instance.new("UICorner")
+uiCornerLogo.CornerRadius = UDim.new(1, 0)
+uiCornerLogo.Parent = logoButton
 
--- Animasi kecil
-local tweenService = game:GetService("TweenService")
-local hoverTween = tweenService:Create(logoButton, TweenInfo.new(0.2), {Size = UDim2.new(0, 60, 0, 60)})
-local unhoverTween = tweenService:Create(logoButton, TweenInfo.new(0.2), {Size = UDim2.new(0, 50, 0, 50)})
+local hoverTween = TweenService:Create(logoButton, TweenInfo.new(0.2), {Size = UDim2.new(0, 60, 0, 60)})
+local unhoverTween = TweenService:Create(logoButton, TweenInfo.new(0.2), {Size = UDim2.new(0, 50, 0, 50)})
 
-logoButton.MouseEnter:Connect(function()
-    hoverTween:Play()
-end)
+logoButton.MouseEnter:Connect(function() hoverTween:Play() end)
+logoButton.MouseLeave:Connect(function() unhoverTween:Play() end)
 
-logoButton.MouseLeave:Connect(function()
-    unhoverTween:Play()
-end)
-
--- Fitur drag/geser bebas
 local dragging = false
-local dragInput, dragStart, startPos
+local dragStart = nil
+local startPos = nil
 
 logoButton.InputBegan:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
         dragging = true
         dragStart = input.Position
         startPos = logoButton.Position
-        
-        input.Changed:Connect(function()
-            if input.UserInputState == Enum.UserInputState.End then
-                dragging = false
-            end
-        end)
     end
 end)
 
-logoButton.InputChanged:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
-        dragInput = input
+logoButton.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        dragging = false
+        dragStart = nil
+        startPos = nil
     end
 end)
 
-UIS.InputChanged:Connect(function(input)
-    if input == dragInput and dragging then
-        local delta = input.Position - dragStart
-        local newPos = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
-        logoButton.Position = newPos
+UserInputService.InputChanged:Connect(function(input)
+    if dragging and dragStart and startPos then
+        if input.UserInputType == Enum.UserInputType.MouseMovement then
+            local delta = input.Position - dragStart
+            local newX = startPos.X.Offset + delta.X
+            local newY = startPos.Y.Offset + delta.Y
+            logoButton.Position = UDim2.new(startPos.X.Scale, newX, startPos.Y.Scale, newY)
+        end
     end
 end)
 
