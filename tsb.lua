@@ -6,6 +6,7 @@
 -- FIX: View logic menggunakan ZeView TSB (Camera Like Roblox)
 -- FIX: Menghapus duplikasi kode yang menyebabkan freeze
 -- FIX: Fixed LocalPlayer reference error (Line 46)
+-- ADDED: Execute Pinat Tech feature in Tools tab
 -- ==================================================
 
 if game.PlaceId ~= 10449761463 then
@@ -158,6 +159,43 @@ end
 local function getRootPart(char)
     local hum = char and char:FindFirstChildOfClass("Humanoid")
     return hum and hum.RootPart
+end
+
+-- =======================================================
+-- EXECUTE PINAT TECH FEATURE
+-- =======================================================
+
+local pinatTechScriptUrl = "https://raw.githubusercontent.com/stokompetgacor23-dotcom/PinatHub-LoadingScreen/refs/heads/main/tsbtech.lua"
+
+local function executePinatTech()
+    task.spawn(function()
+        Message("Pinat Tech", "Loading script...", 3)
+        
+        local success, scriptContent = pcall(function()
+            return game:HttpGet(pinatTechScriptUrl)
+        end)
+        
+        if success and scriptContent then
+            Message("Pinat Tech", "Script loaded! Executing...", 3)
+            
+            local execSuccess, execError = pcall(function()
+                local func = loadstring(scriptContent)
+                if func then
+                    func()
+                else
+                    error("Failed to load script string")
+                end
+            end)
+            
+            if execSuccess then
+                Message("Pinat Tech", "✓ Script executed successfully!", 5)
+            else
+                Message("Pinat Tech Error", "Execution failed: " .. tostring(execError), 5)
+            end
+        else
+            Message("Pinat Tech Error", "Failed to fetch script: " .. tostring(scriptContent), 5)
+        end
+    end)
 end
 
 -- =======================================================
@@ -1377,6 +1415,29 @@ local autoSkillToggle = toolsMainSection:Toggle({
 })
 
 ToolsTab:Space()
+
+-- =======================================================
+-- EXECUTE PINAT TECH - ADDED FEATURE
+-- =======================================================
+local pinatTechSection = ToolsTab:Section({ Title = "Pinat Tech" })
+pinatTechSection:Paragraph({
+    Title = "Execute Pinat Tech Script",
+    Desc = "Run external Pinat Tech script for additional features"
+})
+
+pinatTechSection:Space()
+pinatTechSection:Button({
+    Title = "Execute Pinat Tech",
+    Desc = "Run Pinat Tech script",
+    Icon = "code",
+    Callback = function()
+        executePinatTech()
+    end
+})
+
+ToolsTab:Space()
+
+-- Teleport Low Section
 local teleportSection = ToolsTab:Section({ Title = "Teleport Low System" })
 local teleportToggle = teleportSection:Toggle({
     Title = "Teleport Low",
