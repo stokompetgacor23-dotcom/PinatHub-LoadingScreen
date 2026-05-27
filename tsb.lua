@@ -5,6 +5,7 @@
 -- FIX: Fling system menggunakan logika dari ZeFlingV2
 -- FIX: View logic menggunakan ZeView TSB (Camera Like Roblox)
 -- FIX: Menghapus duplikasi kode yang menyebabkan freeze
+-- FIX: Fixed LocalPlayer reference error (Line 46)
 -- ==================================================
 
 if game.PlaceId ~= 10449761463 then
@@ -27,6 +28,7 @@ local Camera = workspace.CurrentCamera
 local TeleportService = game:GetService("TeleportService")
 local VirtualUser = game:GetService("VirtualUser")
 local StarterGui = game:GetService("StarterGui")
+local TweenService = game:GetService("TweenService")
 
 -- Load WindUI Library (optimized)
 local WindUI = (function()
@@ -43,7 +45,7 @@ if not WindUI then return end
 local logoGui = Instance.new("ScreenGui")
 logoGui.Name = "PinatHubLogo"
 logoGui.ResetOnSpawn = false
-logoGui.Parent = LocalPlayer:WaitForChild("PlayerGui", 5)
+logoGui.Parent = player:WaitForChild("PlayerGui", 5)
 
 local logoButton = Instance.new("ImageButton")
 logoButton.Name = "LogoButton"
@@ -85,7 +87,7 @@ logoButton.InputEnded:Connect(function(input)
     end
 end)
 
-UserInputService.InputChanged:Connect(function(input)
+UIS.InputChanged:Connect(function(input)
     if dragging and dragStart and startPos then
         if input.UserInputType == Enum.UserInputType.MouseMovement then
             local delta = input.Position - dragStart
@@ -756,6 +758,8 @@ local function teleportToOriginalPosition()
     end
     return false
 end
+
+local isTeleportLowEnabled = false
 
 local function startTeleportLow()
     isTeleportLowEnabled = true
