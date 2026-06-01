@@ -52,13 +52,18 @@ _G.NormalLightingSettings = {
 _G.FullBrightEnabled = false
 _G.FullBrightExecuted = false
 
--- Referensi Game Objects
+-- Referensi Game Objects (Dynamic)
 local VoidShards = Workspace:FindFirstChild("VoidShards") or Workspace:WaitForChild("VoidShards", 5)
-local Zombies_Local = Workspace:FindFirstChild("Zombies_Local") or Workspace:WaitForChild("Zombies_Local", 5)
+
+-- Dynamic function for Zombies_Local (FIXED)
+local function getZombiesLocal()
+    return Workspace:FindFirstChild("Zombies_Local")
+end
 
 -- State Variables
 local WaveFarm = false
 local OldPosition = humanoidRootPart.CFrame
+local lastWaveCount = 0
 
 -- ============================================
 -- FULLBRIGHT LOGIC (New)
@@ -340,7 +345,7 @@ combatSection:Toggle({
 
 combatSection:Slider({
     Title = "Kill Aura Distance",
-    Value = { Min = 10, Max = 200, Default = 50 },
+    Value = { Min = 10, Max = 1000, Default = 50 },
     Callback = function(value)
         _G.KillAuraDistance = value
     end
@@ -997,8 +1002,9 @@ end
 
 -- Fungsi untuk membersihkan semua ESP
 local function clearZombiesESP()
-    if Zombies_Local then
-        for _, v in ipairs(Zombies_Local:GetChildren()) do
+    local zombiesLocal = getZombiesLocal()
+    if zombiesLocal then
+        for _, v in ipairs(zombiesLocal:GetChildren()) do
             local esp = v:FindFirstChild("Zombie_ESP")
             if esp then esp:Destroy() end
         end
@@ -1101,9 +1107,14 @@ RunService.Heartbeat:Connect(function()
     -- Auto Reset After Wave
     if _G.AutoResetAfterWave then
         pcall(function()
-            local Wave = player.PlayerGui:FindFirstChild("MainGui"):FindFirstChild("WaveLabel")
-            if Wave and Wave.Text == "Wave " .. ((_G.ResetAfterWave or 50) + 1) .. " Has Started" then
-                player.Character.Humanoid.Health = 0
+            local mainGui = player.PlayerGui:FindFirstChild("MainGui")
+            if mainGui then
+                local waveLabel = mainGui:FindFirstChild("WaveLabel")
+                if waveLabel and waveLabel.Text == "Wave " .. ((_G.ResetAfterWave or 50) + 1) .. " Has Started" then
+                    if player.Character and player.Character:FindFirstChild("Humanoid") then
+                        player.Character.Humanoid.Health = 0
+                    end
+                end
             end
         end)
     end
@@ -1150,12 +1161,15 @@ RunService.Heartbeat:Connect(function()
     end
     
     -- ============================================
-    -- ZOMBIES ESP (Highlight Merah)
+    -- ZOMBIES ESP (Highlight Merah) - FIXED with dynamic getZombiesLocal
     -- ============================================
-    if _G.ZombiesESP and Zombies_Local then
-        for _, v in ipairs(Zombies_Local:GetChildren()) do
-            if v:FindFirstChild("HumanoidRootPart") or v:FindFirstChild("Head") then
-                addZombieESP(v)
+    if _G.ZombiesESP then
+        local zombiesLocal = getZombiesLocal()
+        if zombiesLocal then
+            for _, v in ipairs(zombiesLocal:GetChildren()) do
+                if v:FindFirstChild("HumanoidRootPart") or v:FindFirstChild("Head") then
+                    addZombieESP(v)
+                end
             end
         end
     else
@@ -1189,17 +1203,20 @@ RunService.Heartbeat:Connect(function()
 end)
 
 -- ============================================
--- INSTANCE KILL THREAD
+-- INSTANCE KILL THREAD (FIXED - Dynamic Zombies_Local)
 -- ============================================
 task.spawn(function()
     while task.wait(0.1) do
-        if _G.InstanceKill and Zombies_Local then
-            for _, v in ipairs(Zombies_Local:GetChildren()) do
-                local id = tonumber(string.match(v.Name, "%d+$"))
-                if id then
-                    pcall(function()
-                        ReplicatedStorage.ZombieRemotes.ZombieDamage:FireServer(id, math.huge)
-                    end)
+        if _G.InstanceKill then
+            local zombiesLocal = getZombiesLocal()
+            if zombiesLocal then
+                for _, v in ipairs(zombiesLocal:GetChildren()) do
+                    local id = tonumber(string.match(v.Name, "%d+$"))
+                    if id then
+                        pcall(function()
+                            ReplicatedStorage.ZombieRemotes.ZombieDamage:FireServer(id, math.huge)
+                        end)
+                    end
                 end
             end
         end
@@ -1207,29 +1224,45 @@ task.spawn(function()
 end)
 
 -- ============================================
--- KILL AURA THREAD
+-- KILL AURA THREAD (FIXED - Dynamic Zombies_Local + Health Check)
 -- ============================================
 task.spawn(function()
     while task.wait(0.1) do
         if _G.KillAura and character and character:FindFirstChild("HumanoidRootPart") then
-            for _, v in ipairs(Zombies_Local:GetChildren()) do
-                local zroot = v:FindFirstChild("HumanoidRootPart")
-                if zroot then
-                    local distance = (character.HumanoidRootPart.Position - zroot.Position).Magnitude
-                    if distance < (_G.KillAuraDistance or 50) then
-                        local tool = character:FindFirstChildOfClass("Tool")
-                        if tool then
-                            pcall(function()
-                                local args = {
-                                    tool.Name,
-                                    tonumber(string.match(v.Name, "%d+$")),
-                                    zroot.Position
-                                }
-                                ReplicatedStorage:WaitForChild("GunRemotes"):WaitForChild("GunHit"):FireServer(unpack(args))
-                                ReplicatedStorage:WaitForChild("GunRemotes"):WaitForChild("MeleeSwing"):FireServer("VoidScythe")
-                                local gunArgs = { tool.Name, character.HumanoidRootPart.Position }
-                                ReplicatedStorage:WaitForChild("GunRemotes"):WaitForChild("GunFire"):FireServer(unpack(gunArgs))
-                            end)
+            local zombiesLocal = getZombiesLocal()
+            if zombiesLocal then
+                for _, v in ipairs(zombiesLocal:GetChildren()) do
+                    -- Cek apakah zombie masih hidup (punya HumanoidRootPart dan Health > 0)
+                    local zroot = v:FindFirstChild("HumanoidRootPart")
+                    local zhumanoid = v:FindFirstChildOfClass("Humanoid")
+                    
+                    if zroot and zhumanoid and zhumanoid.Health > 0 then
+                        local distance = (character.HumanoidRootPart.Position - zroot.Position).Magnitude
+                        if distance < (_G.KillAuraDistance or 1000) then
+                            local tool = character:FindFirstChildOfClass("Tool")
+                            if tool then
+                                pcall(function()
+                                    local id = tonumber(string.match(v.Name, "%d+$")) or 1
+                                    -- Cek remote yang tersedia
+                                    local gunRemotes = ReplicatedStorage:FindFirstChild("GunRemotes")
+                                    if gunRemotes then
+                                        local gunHit = gunRemotes:FindFirstChild("GunHit")
+                                        if gunHit then 
+                                            gunHit:FireServer(tool.Name, id, zroot.Position)
+                                        end
+                                        
+                                        local meleeSwing = gunRemotes:FindFirstChild("MeleeSwing")
+                                        if meleeSwing then 
+                                            meleeSwing:FireServer("VoidScythe")
+                                        end
+                                        
+                                        local gunFire = gunRemotes:FindFirstChild("GunFire")
+                                        if gunFire then 
+                                            gunFire:FireServer(tool.Name, character.HumanoidRootPart.Position)
+                                        end
+                                    end
+                                end)
+                            end
                         end
                     end
                 end
@@ -1255,22 +1288,79 @@ task.spawn(function()
         end
         if _G.AutoAbilityE then
             pcall(function()
-                local Gear1 = string.gsub(player.PlayerGui.MainGui.ControlPanel.Gear1.GearName.Text, "%s+", "")
-                ReplicatedStorage:WaitForChild("GearRemotes"):WaitForChild("GearPurchase"):FireServer(Gear1)
+                local mainGui = player.PlayerGui:FindFirstChild("MainGui")
+                if mainGui then
+                    local controlPanel = mainGui:FindFirstChild("ControlPanel")
+                    if controlPanel then
+                        local gear1 = controlPanel:FindFirstChild("Gear1")
+                        if gear1 then
+                            local gearName = gear1:FindFirstChild("GearName")
+                            if gearName then
+                                local Gear1 = string.gsub(gearName.Text, "%s+", "")
+                                ReplicatedStorage:WaitForChild("GearRemotes"):WaitForChild("GearPurchase"):FireServer(Gear1)
+                            end
+                        end
+                    end
+                end
             end)
         end
         if _G.AutoAbilityR then
             pcall(function()
-                local Gear2 = string.gsub(player.PlayerGui.MainGui.ControlPanel.Gear2.GearName.Text, "%s+", "")
-                ReplicatedStorage:WaitForChild("GearRemotes"):WaitForChild("GearPurchase"):FireServer(Gear2)
-                ReplicatedStorage:WaitForChild("GearRemotes"):WaitForChild("GearPurchase"):FireServer("ShockwaveMine")
+                local mainGui = player.PlayerGui:FindFirstChild("MainGui")
+                if mainGui then
+                    local controlPanel = mainGui:FindFirstChild("ControlPanel")
+                    if controlPanel then
+                        local gear2 = controlPanel:FindFirstChild("Gear2")
+                        if gear2 then
+                            local gearName = gear2:FindFirstChild("GearName")
+                            if gearName then
+                                local Gear2 = string.gsub(gearName.Text, "%s+", "")
+                                ReplicatedStorage:WaitForChild("GearRemotes"):WaitForChild("GearPurchase"):FireServer(Gear2)
+                                ReplicatedStorage:WaitForChild("GearRemotes"):WaitForChild("GearPurchase"):FireServer("ShockwaveMine")
+                            end
+                        end
+                    end
+                end
             end)
         end
         if _G.AutoAbilityQ then
             pcall(function()
-                local Gear3 = string.gsub(player.PlayerGui.MainGui.ControlPanel.Gear3.GearName.Text, "%s+", "")
-                ReplicatedStorage:WaitForChild("GearRemotes"):WaitForChild("GearPurchase"):FireServer(Gear3)
+                local mainGui = player.PlayerGui:FindFirstChild("MainGui")
+                if mainGui then
+                    local controlPanel = mainGui:FindFirstChild("ControlPanel")
+                    if controlPanel then
+                        local gear3 = controlPanel:FindFirstChild("Gear3")
+                        if gear3 then
+                            local gearName = gear3:FindFirstChild("GearName")
+                            if gearName then
+                                local Gear3 = string.gsub(gearName.Text, "%s+", "")
+                                ReplicatedStorage:WaitForChild("GearRemotes"):WaitForChild("GearPurchase"):FireServer(Gear3)
+                            end
+                        end
+                    end
+                end
             end)
+        end
+    end
+end)
+
+-- ============================================
+-- WATCHER UNTUK ZOMBIES_LOCAL (Refresh otomatis)
+-- ============================================
+task.spawn(function()
+    while task.wait(1) do
+        if _G.KillAura or _G.InstanceKill then
+            local zombiesLocal = getZombiesLocal()
+            if not zombiesLocal then
+                -- Tunggu folder muncul kembali
+                repeat
+                    task.wait(0.5)
+                    zombiesLocal = getZombiesLocal()
+                until zombiesLocal or not (_G.KillAura or _G.InstanceKill)
+                if Window and zombiesLocal then
+                    Window:Notify("Zombies", "Zombies folder detected!", 1)
+                end
+            end
         end
     end
 end)
