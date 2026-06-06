@@ -1211,23 +1211,11 @@ task.spawn(function()
             local zombiesLocal = getZombiesLocal()
             if zombiesLocal then
                 for _, v in ipairs(zombiesLocal:GetChildren()) do
-                    if not _G.InstanceKill then break end
-
-                    local humanoid = v:FindFirstChildOfClass("Humanoid")
-                    if humanoid and humanoid.Health > 0 then
-                        local id = tonumber(string.match(v.Name, "%d+"))
-                        if id then
-                            pcall(function()
-                                local zombieRemotes = ReplicatedStorage:FindFirstChild("ZombieRemotes")
-                                if zombieRemotes then
-                                    local damageRemote = zombieRemotes:FindFirstChild("ZombieDamage")
-                                    if damageRemote then
-                                        damageRemote:FireServer(id, 9e9)
-                                    end
-                                end
-                            end)
-                            task.wait(0.02) -- Small delay to prevent rate-limiting
-                        end
+                    local id = tonumber(string.match(v.Name, "%d+$"))
+                    if id then
+                        pcall(function()
+                            ReplicatedStorage.ZombieRemotes.ZombieDamage:FireServer(id, math.huge)
+                        end)
                     end
                 end
             end
