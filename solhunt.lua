@@ -211,7 +211,7 @@ end)
 
 UIS.InputChanged:Connect(function(input)
     if dragging and dragStart and startPos then
-        if input.UserInputType == Enum.UserInputType.MouseMovement then
+        if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
             local delta = input.Position - dragStart
             local newX = startPos.X.Offset + delta.X
             local newY = startPos.Y.Offset + delta.Y
