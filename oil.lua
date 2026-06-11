@@ -255,7 +255,7 @@ end
 local logoGui = Instance.new("ScreenGui")
 logoGui.Name = "PinatHubLogo"
 logoGui.ResetOnSpawn = false
-logoGui.Parent = LocalPlayer:WaitForChild("PlayerGui", 5)
+logoGui.Parent = player:WaitForChild("PlayerGui", 5)
 
 local logoButton = Instance.new("ImageButton")
 logoButton.Name = "LogoButton"
@@ -297,9 +297,9 @@ logoButton.InputEnded:Connect(function(input)
     end
 end)
 
-UserInputService.InputChanged:Connect(function(input)
+UIS.InputChanged:Connect(function(input)
     if dragging and dragStart and startPos then
-        if input.UserInputType == Enum.UserInputType.MouseMovement then
+        if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
             local delta = input.Position - dragStart
             local newX = startPos.X.Offset + delta.X
             local newY = startPos.Y.Offset + delta.Y
